@@ -24,3 +24,8 @@ variable "SECRET_NAME" {
   type        = string
   description = "The name of the secret in AWS Secrets Manager"
 }
+
+variable "NOTIFICATION_EMAIL" {
+  type        = string
+  description = "The email address to receive SNS notifications"
+}

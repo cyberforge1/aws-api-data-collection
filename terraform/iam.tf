@@ -19,7 +19,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 
 resource "aws_iam_policy" "lambda_execution_policy" {
   name        = "LambdaExecutionPolicy"
-  description = "Policy to allow Lambda to write to CloudWatch logs, access Secrets Manager, and interact with EventBridge"
+  description = "Policy to allow Lambda to write to CloudWatch logs, access Secrets Manager, and interact with EventBridge and SNS"
 
   policy = jsonencode({
     "Version": "2012-10-17",
@@ -65,6 +65,14 @@ resource "aws_iam_policy" "lambda_execution_policy" {
           "events:PutEvents"
         ],
         "Resource": "*"
+      },
+      {
+        # Permissions for EventBridge to publish to SNS
+        "Effect": "Allow",
+        "Action": [
+          "sns:Publish"
+        ],
+        "Resource": "arn:aws:sns:${var.CUSTOM_AWS_REGION}:${var.AWS_ACCOUNT_ID}:eventbridge-notifications"
       }
     ]
   })
