@@ -19,7 +19,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 
 resource "aws_iam_policy" "lambda_execution_policy" {
   name        = "LambdaExecutionPolicy"
-  description = "Policy to allow Lambda to write to CloudWatch logs and access Secrets Manager"
+  description = "Policy to allow Lambda to write to CloudWatch logs, access Secrets Manager, and interact with EventBridge"
 
   policy = jsonencode({
     "Version": "2012-10-17",
@@ -55,6 +55,14 @@ resource "aws_iam_policy" "lambda_execution_policy" {
           "ec2:DescribeInstances",
           "ec2:DescribeSubnets",
           "ec2:DescribeSecurityGroups"
+        ],
+        "Resource": "*"
+      },
+      {
+        # Permissions to put events to EventBridge
+        "Effect": "Allow",
+        "Action": [
+          "events:PutEvents"
         ],
         "Resource": "*"
       }

@@ -25,7 +25,6 @@ def get_secrets():
         print(f"Error: Failed to fetch secrets. Exception: {e}")
         return None
 
-
 def fetch_access_token(api_key, api_secret):
     """
     Fetch access token from WaterInsights API.
@@ -68,10 +67,40 @@ def fetch_access_token(api_key, api_secret):
         print(f"Error during access token retrieval: {e}")
         return None
 
+def trigger_eventbridge_event():
+    """
+    Triggers an EventBridge event.
+    """
+    try:
+        event_bus_name = os.getenv('EVENT_BUS_NAME', 'default')
+        aws_region = os.getenv('CUSTOM_AWS_REGION', 'ap-southeast-2')
+        eventbridge_client = boto3.client('events', region_name=aws_region)
+        
+        response = eventbridge_client.put_events(
+            Entries=[
+                {
+                    'EventBusName': event_bus_name,
+                    'Source': 'lambda_trigger',
+                    'DetailType': 'SecretUpdated',
+                    'Detail': json.dumps({'message': 'Secret updated successfully'})
+                }
+            ]
+        )
+        print(f"EventBridge response: {response}")
+        if response['FailedEntryCount'] > 0:
+            print("Error: Failed to put event to EventBridge.")
+            return False
+        else:
+            print("EventBridge event triggered successfully.")
+            return True
+    except Exception as e:
+        print(f"Error triggering EventBridge event: {e}")
+        return False
 
 def update_secret_with_access_token(secret_name, aws_region, secret_data, access_token):
     """
-    Updates the secret in AWS Secrets Manager with the new access token.
+    Updates the secret in AWS Secrets Manager with the new access token
+    and triggers EventBridge if successful.
     """
     secrets_client = boto3.client('secretsmanager', region_name=aws_region)
 
@@ -85,9 +114,13 @@ def update_secret_with_access_token(secret_name, aws_region, secret_data, access
             SecretString=json.dumps(secret_data)
         )
         print("ACCESS_TOKEN added to the secret successfully.")
+
+        # Trigger EventBridge event
+        trigger_eventbridge_event()
+
         return {
             'statusCode': 200,
-            'body': 'ACCESS_TOKEN added to the secret successfully.'
+            'body': 'ACCESS_TOKEN added to the secret successfully and EventBridge event triggered.'
         }
     except Exception as e:
         print(f"Error updating secret: {e}")
@@ -95,7 +128,6 @@ def update_secret_with_access_token(secret_name, aws_region, secret_data, access
             'statusCode': 500,
             'body': f"Error updating secret: {e}"
         }
-
 
 def lambda_handler(event, context):
     print("Lambda function started.")
@@ -115,7 +147,7 @@ def lambda_handler(event, context):
         if access_token:
             print("Successfully retrieved access token from WaterInsights API.")
 
-            # Write the access token to Secrets Manager
+            # Write the access token to Secrets Manager and trigger EventBridge
             secret_name = os.getenv('SECRET_NAME')
             aws_region = os.getenv('CUSTOM_AWS_REGION', 'ap-southeast-2')
             update_result = update_secret_with_access_token(secret_name, aws_region, secret_data, access_token)
