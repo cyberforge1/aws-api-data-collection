@@ -1,4 +1,5 @@
 
-1) create a new lambda function zip file that will create an api call
+1) Test each stage of the pipeline
 
-2) write a python script that will trigger this function
+2) Create strategy for Lambda function implementing API calls
+
