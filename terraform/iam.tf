@@ -19,7 +19,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 
 resource "aws_iam_policy" "lambda_execution_policy" {
   name        = "LambdaExecutionPolicy"
-  description = "Policy to allow Lambda to write to CloudWatch logs, access Secrets Manager, and interact with EventBridge and SNS"
+  description = "Policy to allow Lambda to write to CloudWatch logs, access Secrets Manager, interact with EventBridge and SNS, and connect to RDS"
 
   policy = jsonencode({
     "Version": "2012-10-17",
@@ -44,7 +44,7 @@ resource "aws_iam_policy" "lambda_execution_policy" {
         "Resource": "arn:aws:secretsmanager:${var.CUSTOM_AWS_REGION}:${var.AWS_ACCOUNT_ID}:secret:${var.SECRET_NAME}*"
       },
       {
-        # Allow Lambda to use the Internet (for API calls)
+        # Allow Lambda to interact with the RDS instance in a VPC
         "Effect": "Allow",
         "Action": [
           "ec2:CreateNetworkInterface",

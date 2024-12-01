@@ -16,6 +16,8 @@ resource "aws_lambda_function" "lambda_trigger" {
     }
   }
 
+  timeout = 10  # Increased timeout to handle complex processing
+
   tags = {
     Environment = "production"
   }
@@ -35,6 +37,8 @@ resource "aws_lambda_function" "lambda_test_request" {
     }
   }
 
+  timeout = 10  # Increased timeout for testing scenarios
+
   tags = {
     Environment = "production"
   }
@@ -52,9 +56,16 @@ resource "aws_lambda_function" "lambda_data_collection" {
     variables = {
       CUSTOM_AWS_REGION = var.CUSTOM_AWS_REGION
       SNS_TOPIC_ARN     = aws_sns_topic.eventbridge_notifications.arn
-      SECRET_NAME       = var.SECRET_NAME  # Added Secret Name
+      SECRET_NAME       = var.SECRET_NAME
     }
   }
+
+  vpc_config {
+    subnet_ids         = var.SUBNET_IDS  # Fetch subnet IDs from variables.tf
+    security_group_ids = [var.SECURITY_GROUP_ID]  # Fetch security group ID from variables.tf
+  }
+
+  timeout = 15  # Increased timeout to handle RDS connection and data processing
 
   tags = {
     Environment = "production"

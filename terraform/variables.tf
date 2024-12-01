@@ -29,3 +29,18 @@ variable "NOTIFICATION_EMAIL" {
   type        = string
   description = "The email address to receive SNS notifications"
 }
+
+variable "VPC_ID" {
+  type        = string
+  description = "The ID of the VPC where Lambda and RDS are deployed"
+}
+
+variable "SUBNET_IDS" {
+  type        = list(string)
+  description = "List of subnet IDs for Lambda to connect to the RDS database"
+}
+
+variable "SECURITY_GROUP_ID" {
+  type        = string
+  description = "The security group ID that allows Lambda to connect to the RDS database"
+}

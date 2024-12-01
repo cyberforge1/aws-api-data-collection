@@ -29,16 +29,11 @@ terraform -chdir=terraform destroy
 
 
 
-
-
-
-
 ## Trigger
 
 python scripts/invoke_lambda_trigger.py
 
 python scripts/invoke_lambda_test_request.py
-
 
 
 
