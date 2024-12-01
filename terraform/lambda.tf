@@ -52,6 +52,7 @@ resource "aws_lambda_function" "lambda_data_collection" {
     variables = {
       CUSTOM_AWS_REGION = var.CUSTOM_AWS_REGION
       SNS_TOPIC_ARN     = aws_sns_topic.eventbridge_notifications.arn
+      SECRET_NAME       = var.SECRET_NAME  # Added Secret Name
     }
   }
 

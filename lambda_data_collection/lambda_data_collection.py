@@ -4,10 +4,49 @@ import boto3
 import json
 import os
 
+def get_secrets():
+    aws_region = os.getenv('CUSTOM_AWS_REGION', 'ap-southeast-2')
+    secret_name = os.getenv('SECRET_NAME')
+    
+    if not secret_name:
+        print("Error: SECRET_NAME environment variable is not set.")
+        return None
+
+    print(f"Debug: AWS_REGION resolved to {aws_region}")
+    print(f"Debug: SECRET_NAME resolved to {secret_name}")
+
+    secrets_client = boto3.client('secretsmanager', region_name=aws_region)
+
+    try:
+        response = secrets_client.get_secret_value(SecretId=secret_name)
+        # Modify the print statement to avoid json.dumps on the entire response
+        # This prevents serialization errors due to non-serializable objects like datetime
+        print("Debug: Secrets Manager response received.")
+        
+        # Optionally, log specific parts of the response if needed
+        # For example, you can log the SecretString
+        print(f"Debug: SecretString: {response.get('SecretString', 'No SecretString found')}")
+
+        secret_data = json.loads(response['SecretString'])
+        print("Debug: Parsed secret data successfully.")
+        return secret_data
+    except Exception as e:
+        print(f"Error: Failed to fetch secrets. Exception: {e}")
+        return None
+
 def lambda_handler(event, context):
     print("Lambda `lambda_data_collection` started.")
     print(f"Event received: {json.dumps(event, indent=2)}")
     
+    # Access and log secrets
+    secret_data = get_secrets()
+    if secret_data:
+        print("Debug: Successfully retrieved secrets:")
+        for key, value in secret_data.items():
+            print(f"Secret Variable - {key}: {value}")
+    else:
+        print("Error: Failed to retrieve secrets.")
+
     # Extract information from the event if necessary
     source = event.get('source', 'Unknown Source')
     detail_type = event.get('detail-type', 'Unknown DetailType')
