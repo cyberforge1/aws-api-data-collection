@@ -67,6 +67,7 @@ resource "aws_lambda_function" "lambda_data_collection" {
       DB_NAME           = var.DB_NAME      # Added DB Name
       DB_USER           = var.DB_USER      # Added DB User
       DB_PASSWORD       = var.DB_PASSWORD  # Added DB Password
+      S3_BUCKET_NAME    = aws_s3_bucket.data_collection_bucket.bucket  # Added S3 bucket name
     }
   }
 

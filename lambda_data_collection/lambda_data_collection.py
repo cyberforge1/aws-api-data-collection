@@ -154,6 +154,32 @@ def publish_to_sns(sns_client, sns_topic_arn, source, detail_type, detail):
         logger.error(f"Failed to publish message to SNS. Exception: {e}")
         return None
 
+def get_s3_client():
+    """
+    Initialize and return an S3 client.
+    """
+    return boto3.client('s3')
+
+def upload_to_s3(s3_client, bucket_name, key, data):
+    """
+    Upload data to the specified S3 bucket.
+    """
+    try:
+        s3_client.put_object(
+            Bucket=bucket_name,
+            Key=key,
+            Body=json.dumps(data, default=decimal_default),
+            ContentType='application/json'
+        )
+        logger.info(f"Successfully uploaded data to S3 bucket '{bucket_name}' with key '{key}'.")
+    except Exception as e:
+        logger.error(f"Failed to upload data to S3. Exception: {e}")
+
+def decimal_default(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    raise TypeError
+
 def lambda_handler(event, context):
     """
     AWS Lambda handler function.
@@ -286,11 +312,27 @@ def lambda_handler(event, context):
         else:
             logger.warning(f"Failed to fetch resources for dam_id {dam_id}.")
 
+    # Initialize S3 client
+    s3_client = get_s3_client()
+    s3_bucket = os.getenv('S3_BUCKET_NAME')
+
+    if not s3_bucket:
+        logger.error("S3_BUCKET_NAME environment variable is not set.")
+        return {
+            "statusCode": 500,
+            "body": "S3_BUCKET_NAME environment variable is not set."
+        }
+
+    # After collecting all_dam_resources
+    timestamp = int(time.time())
+    s3_key = f"dam_resources_{timestamp}.json"
+
+    upload_to_s3(s3_client, s3_bucket, s3_key, all_dam_resources)
+
     # Optionally, you can store 'all_dam_resources' to a database or another service
-    # For this example, we'll just log the collected data
-    logger.info("All dam resources collected:")
-    for resource in all_dam_resources:
-        logger.info(json.dumps(resource, indent=2))
+    # For this example, we've uploaded the data to S3
+
+    logger.info("All dam resources collected and uploaded to S3.")
 
     logger.info(f"Number of successful API requests: {successful_requests_count}")
 

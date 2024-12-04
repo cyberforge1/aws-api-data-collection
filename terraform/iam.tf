@@ -19,7 +19,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 
 resource "aws_iam_policy" "lambda_execution_policy" {
   name        = "LambdaExecutionPolicy"
-  description = "Policy to allow Lambda to write to CloudWatch logs, access Secrets Manager, interact with EventBridge and SNS, and connect to RDS"
+  description = "Policy to allow Lambda to write to S3, write to CloudWatch logs, access Secrets Manager, interact with EventBridge and SNS, and connect to RDS"
 
   policy = jsonencode({
     "Version": "2012-10-17",
@@ -73,6 +73,14 @@ resource "aws_iam_policy" "lambda_execution_policy" {
           "sns:Publish"
         ],
         "Resource": "arn:aws:sns:${var.CUSTOM_AWS_REGION}:${var.AWS_ACCOUNT_ID}:eventbridge-notifications"
+      },
+      {
+        # Permissions to write to the S3 bucket
+        "Effect": "Allow",
+        "Action": [
+          "s3:PutObject"
+        ],
+        "Resource": "${aws_s3_bucket.data_collection_bucket.arn}/*"
       }
     ]
   })
