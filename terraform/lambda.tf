@@ -60,3 +60,23 @@ resource "aws_lambda_function" "lambda_data_collection" {
     Environment = "production"
   }
 }
+
+# New Lambda Function: lambda_db_connection
+resource "aws_lambda_function" "lambda_db_connection" {
+  function_name    = "lambda_db_connection"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "lambda_db_connection.lambda_handler"
+  runtime          = "python3.8"
+  filename         = "${path.module}/../zipped_lambda_functions/lambda_db_connection.zip"
+  source_code_hash = filebase64sha256("${path.module}/../zipped_lambda_functions/lambda_db_connection.zip")
+
+  environment {
+    variables = {
+      # Add any environment variables if needed
+    }
+  }
+
+  tags = {
+    Environment = "production"
+  }
+}

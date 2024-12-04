@@ -27,8 +27,7 @@ terraform -chdir=terraform destroy
 
 (cd lambda_data_collection && zip -r ../zipped_lambda_functions/lambda_data_collection.zip .)
 
-
-
+(cd lambda_db_connection && zip -r ../zipped_lambda_functions/lambda_db_connection.zip .)
 
 
 
