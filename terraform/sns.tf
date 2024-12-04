@@ -1,3 +1,5 @@
+# terraform/sns.tf
+
 resource "aws_sns_topic" "eventbridge_notifications" {
   name = "eventbridge-notifications"
 }
