@@ -158,7 +158,7 @@ def lambda_handler(event, context):
     """
     AWS Lambda handler function.
     """
-    logger.info("Lambda `lambda_data_collection` started.")
+    logger.info("Lambda lambda_data_collection started.")
     logger.info(f"Event received: {json.dumps(event, indent=2)}")
 
     # Access and log secrets
@@ -266,7 +266,9 @@ def lambda_handler(event, context):
             "body": "Lambda executed successfully, notification sent via SNS, and no dams to process."
         }
 
+    total_dams_count = len(dams)  # Store the total number of dams
     all_dam_resources = []
+    successful_requests_count = 0  # Counter for successful API requests
 
     for dam in dams:
         dam_id = dam.get("dam_id")
@@ -278,6 +280,7 @@ def lambda_handler(event, context):
         dam_resources = fetch_dam_resources(dam_id, HEADERS)
 
         if dam_resources:
+            successful_requests_count += 1  # Increment counter
             all_dam_resources.append(dam_resources)
             logger.info(f"Successfully fetched resources for dam_id {dam_id}: {json.dumps(dam_resources, indent=2)}")
         else:
@@ -289,7 +292,15 @@ def lambda_handler(event, context):
     for resource in all_dam_resources:
         logger.info(json.dumps(resource, indent=2))
 
+    logger.info(f"Number of successful API requests: {successful_requests_count}")
+
+    # Add the check here
+    if successful_requests_count == total_dams_count:
+        logger.info("All API requests were successful.")
+    else:
+        logger.warning(f"Number of successful API requests ({successful_requests_count}) does not match the total number of dams ({total_dams_count}).")
+
     return {
         "statusCode": 200,
-        "body": "Lambda executed successfully, notification sent via SNS, and latest dam resources collected."
+        "body": f"Lambda executed successfully, notification sent via SNS, and {successful_requests_count} successful API requests made."
     }

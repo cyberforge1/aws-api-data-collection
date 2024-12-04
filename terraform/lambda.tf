@@ -8,6 +8,9 @@ resource "aws_lambda_function" "lambda_trigger" {
   filename         = "${path.module}/../zipped_lambda_functions/lambda_trigger.zip"
   source_code_hash = filebase64sha256("${path.module}/../zipped_lambda_functions/lambda_trigger.zip")
 
+  # Add the timeout parameter (optional)
+  # timeout          = 60  # Timeout in seconds
+
   environment {
     variables = {
       CUSTOM_AWS_REGION = var.CUSTOM_AWS_REGION
@@ -29,6 +32,9 @@ resource "aws_lambda_function" "lambda_test_request" {
   filename         = "${path.module}/../zipped_lambda_functions/lambda_test_request.zip"
   source_code_hash = filebase64sha256("${path.module}/../zipped_lambda_functions/lambda_test_request.zip")
 
+  # Add the timeout parameter (optional)
+  # timeout          = 60  # Timeout in seconds
+
   environment {
     variables = {
       CUSTOM_AWS_REGION = var.CUSTOM_AWS_REGION
@@ -47,6 +53,9 @@ resource "aws_lambda_function" "lambda_data_collection" {
   runtime          = "python3.8"
   filename         = "${path.module}/../zipped_lambda_functions/lambda_data_collection.zip"
   source_code_hash = filebase64sha256("${path.module}/../zipped_lambda_functions/lambda_data_collection.zip")
+
+  # Add the timeout parameter here
+  timeout          = 60  # Timeout in seconds (e.g., 300 seconds = 5 minutes)
 
   environment {
     variables = {
@@ -74,6 +83,9 @@ resource "aws_lambda_function" "lambda_db_connection" {
   runtime          = "python3.8"
   filename         = "${path.module}/../zipped_lambda_functions/lambda_db_connection.zip"
   source_code_hash = filebase64sha256("${path.module}/../zipped_lambda_functions/lambda_db_connection.zip")
+
+  # Add the timeout parameter (optional)
+  # timeout          = 60  # Timeout in seconds
 
   environment {
     variables = {
