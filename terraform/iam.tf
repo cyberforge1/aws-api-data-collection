@@ -19,7 +19,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 
 resource "aws_iam_policy" "lambda_execution_policy" {
   name        = "LambdaExecutionPolicy"
-  description = "Policy to allow Lambda to write to CloudWatch logs, access Secrets Manager, and interact with EventBridge and SNS"
+  description = "Policy to allow Lambda to write to CloudWatch logs, access Secrets Manager, interact with EventBridge and SNS, and connect to RDS"
 
   policy = jsonencode({
     "Version": "2012-10-17",
@@ -78,7 +78,30 @@ resource "aws_iam_policy" "lambda_execution_policy" {
   })
 }
 
+resource "aws_iam_policy" "lambda_secrets_policy" {
+  name        = "LambdaSecretsAccessPolicy"
+  description = "Policy to allow Lambda functions to access Secrets Manager"
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "secretsmanager:GetSecretValue"
+        ],
+        "Resource": "arn:aws:secretsmanager:${var.CUSTOM_AWS_REGION}:${var.AWS_ACCOUNT_ID}:secret:${var.SECRET_NAME}*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
   role       = aws_iam_role.lambda_execution_role.name
   policy_arn = aws_iam_policy.lambda_execution_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "attach_lambda_secrets_policy" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_secrets_policy.arn
 }

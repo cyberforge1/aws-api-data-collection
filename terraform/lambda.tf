@@ -53,6 +53,11 @@ resource "aws_lambda_function" "lambda_data_collection" {
       CUSTOM_AWS_REGION = var.CUSTOM_AWS_REGION
       SNS_TOPIC_ARN     = aws_sns_topic.eventbridge_notifications.arn
       SECRET_NAME       = var.SECRET_NAME  # Added Secret Name
+      DB_HOST           = var.DB_HOST      # Added DB Host
+      DB_PORT           = var.DB_PORT      # Added DB Port
+      DB_NAME           = var.DB_NAME      # Added DB Name
+      DB_USER           = var.DB_USER      # Added DB User
+      DB_PASSWORD       = var.DB_PASSWORD  # Added DB Password
     }
   }
 
@@ -72,7 +77,12 @@ resource "aws_lambda_function" "lambda_db_connection" {
 
   environment {
     variables = {
-      # Add any environment variables if needed
+      DB_HOST     = var.DB_HOST
+      DB_PORT     = var.DB_PORT
+      DB_NAME     = var.DB_NAME
+      DB_USER     = var.DB_USER
+      DB_PASSWORD = var.DB_PASSWORD
+      # Add any additional environment variables if needed
     }
   }
 
