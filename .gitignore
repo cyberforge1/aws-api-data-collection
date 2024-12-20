@@ -22,3 +22,5 @@ terraform/*_override.tf
 terraform/*_override.tf.json
 
 terraform/terraform.tfvars
+
+.DS_Store
